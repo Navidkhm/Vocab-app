@@ -5,10 +5,19 @@ export async function fetchExamples(word, wordType, definitions, level = 'A2') {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ word, wordType, definitions, level }),
     })
-    if (!res.ok) return []
+    if (!res.ok) {
+      console.warn('Example request failed:', res.status, await res.text())
+      return []
+    }
+    const contentType = res.headers.get('content-type') || ''
+    if (!contentType.includes('application/json')) {
+      console.warn('Example request returned non-JSON response:', contentType)
+      return []
+    }
     const data = await res.json()
     return Array.isArray(data.sentences) ? data.sentences : []
-  } catch {
+  } catch (err) {
+    console.warn('Example request failed:', err)
     return []
   }
 }
