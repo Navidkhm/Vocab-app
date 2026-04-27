@@ -64,7 +64,7 @@ export default function SearchBar({ autoFocus = false, initialValue = '' }) {
           // Build umlaut-expanded variants so "grune" also searches "grüne"
           const wikiQueries = buildWiktionaryQueries(query.trim())
           const fetches = wikiQueries.map(q =>
-            fetch(`https://de.wiktionary.org/w/api.php?action=opensearch&search=${encodeURIComponent(q)}&namespace=0&limit=8&format=json&origin=*`)
+            fetch(`https://en.wiktionary.org/w/api.php?action=opensearch&search=${encodeURIComponent(q)}&namespace=0&limit=8&format=json&origin=*`)
               .then(r => r.json())
               .then(d => d[1] || [])
               .catch(() => [])
