@@ -1,3 +1,4 @@
+/* global process */
 import Anthropic from '@anthropic-ai/sdk'
 
 export default async function handler(req, res) {
@@ -5,7 +6,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { word, wordType, definitions, level = 'A2' } = req.body
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+  const { word, wordType, definitions, level = 'A2' } = body || {}
 
   if (!word) {
     return res.status(400).json({ error: 'Missing word parameter' })
@@ -33,7 +35,7 @@ export default async function handler(req, res) {
 
   try {
     const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001',
       max_tokens: 400,
       system: `You generate exactly 3 German example sentences for vocabulary learners.
 STRICT RULES:
@@ -68,6 +70,13 @@ STRICT RULES:
     return res.status(200).json(parsed)
   } catch (err) {
     console.error('Claude API error:', err)
-    return res.status(500).json({ error: 'Failed to generate examples' })
+    const status = err.status || 500
+    const type = err.error?.type || err.type || 'unknown_error'
+    const message = err.error?.message || err.message || 'Failed to generate examples'
+    return res.status(status).json({
+      error: 'Failed to generate examples',
+      detail: type,
+      message,
+    })
   }
 }
