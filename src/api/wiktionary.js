@@ -2,7 +2,7 @@ const WIKTIONARY_API = "https://en.wiktionary.org/w/api.php";
 
 export async function lookupWord(word) {
   const url = `${WIKTIONARY_API}?action=parse&format=json&page=${encodeURIComponent(word)}&prop=text&origin=*`;
-  const res = await fetch(url);
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error("Network error");
   const json = await res.json();
   if (json.error) return null;
