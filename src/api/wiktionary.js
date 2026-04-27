@@ -151,7 +151,9 @@ function extractDefinitions(nodes) {
       for (const li of items) {
         // Get the text, stripping sub-lists and usage examples
         const clone = li.cloneNode(true);
-        clone.querySelectorAll("dl, ul, ol, style, script").forEach(el => el.remove());
+        clone
+          .querySelectorAll("dl, ul, ol, style, script")
+          .forEach(el => el.remove());
         clone.querySelectorAll("sup").forEach(el => el.remove());
         // Remove wiki-links formatting but keep text
         const text = cleanDefinitionText(clone.textContent.trim());
@@ -173,7 +175,8 @@ function cleanDefinitionText(text) {
 
 function extractHeadwordText(nodes) {
   for (const node of nodes) {
-    if (node.tagName === "P") return cleanDefinitionText(node.textContent || "");
+    if (node.tagName === "P")
+      return cleanDefinitionText(node.textContent || "");
   }
   return "";
 }
@@ -193,7 +196,10 @@ function extractForms(nodes, type, headwordText = "") {
 
   if (type === "adjective") {
     const tableForms = tables[0] ? extractAdjectiveForms(tables[0]) : null;
-    return mergeForms(extractAdjectiveFormsFromHeadword(headwordText), tableForms);
+    return mergeForms(
+      extractAdjectiveFormsFromHeadword(headwordText),
+      tableForms
+    );
   }
 
   return null;
@@ -206,14 +212,19 @@ function extractInflectionTables(nodes) {
       tables.push(node);
     }
     if (node.querySelectorAll) {
-      tables.push(...Array.from(node.querySelectorAll("table")).filter(isInflectionTable));
+      tables.push(
+        ...Array.from(node.querySelectorAll("table")).filter(isInflectionTable)
+      );
     }
   }
   return tables;
 }
 
 function isInflectionTable(table) {
-  return table.classList?.contains("inflection-table") || /declension|conjugation/i.test(table.textContent || "");
+  return (
+    table.classList?.contains("inflection-table") ||
+    /declension|conjugation/i.test(table.textContent || "")
+  );
 }
 
 function mergeForms(fallback, primary) {
@@ -296,7 +307,8 @@ function extractNounForms(table) {
       if (m) result.article = m[1].toLowerCase();
     }
     if (nom.length >= 5) result.plural = nom[4];
-    else if (nom.length >= 2 && /plural/i.test(table.textContent)) result.plural = nom[nom.length - 1];
+    else if (nom.length >= 2 && /plural/i.test(table.textContent))
+      result.plural = nom[nom.length - 1];
   }
   if (genRow && rowData[genRow]) {
     const gen = rowData[genRow];
@@ -324,7 +336,9 @@ function extractNounForms(table) {
 function extractNounFormsFromHeadword(text) {
   if (!text) return null;
   const result = {};
-  const genderMatch = text.match(/\b(m|f|n)\b|\b(masculine|feminine|neuter)\b/i);
+  const genderMatch = text.match(
+    /\b(m|f|n)\b|\b(masculine|feminine|neuter)\b/i
+  );
   if (genderMatch) {
     const gender = (genderMatch[1] || genderMatch[2]).toLowerCase();
     if (gender === "m" || gender === "masculine") result.article = "der";
@@ -339,17 +353,30 @@ function extractNounFormsFromHeadword(text) {
 }
 
 function extractVerbForms(tables, nodes) {
-  const simpleRows = Array.from(tables[0]?.querySelectorAll("tr") || []).map(getRowCells);
-  const composedRows = Array.from(tables[1]?.querySelectorAll("tr") || []).map(getRowCells);
+  const simpleRows = Array.from(tables[0]?.querySelectorAll("tr") || []).map(
+    getRowCells
+  );
+  const composedRows = Array.from(tables[1]?.querySelectorAll("tr") || []).map(
+    getRowCells
+  );
   const tenseMap = {};
 
-  tenseMap.praesens = extractSimpleVerbTense(simpleRows, ["present", "präsens"]);
-  tenseMap.praeteritum = extractSimpleVerbTense(simpleRows, ["preterite", "präteritum"]);
+  tenseMap.praesens = extractSimpleVerbTense(simpleRows, [
+    "present",
+    "präsens"
+  ]);
+  tenseMap.praeteritum = extractSimpleVerbTense(simpleRows, [
+    "preterite",
+    "präteritum"
+  ]);
   tenseMap.perfekt = extractComposedVerbTense(composedRows, "perfect");
   tenseMap.futur = extractComposedVerbTense(composedRows, "future i");
 
   // Extract Partizip II and Imperativ — often in separate rows/section
-  let partizipII = extractLabeledValue(simpleRows, ["past participle", "partizip ii"]);
+  let partizipII = extractLabeledValue(simpleRows, [
+    "past participle",
+    "partizip ii"
+  ]);
   let imperativ = extractImperative(simpleRows);
 
   // Also check for partizip in non-table nodes
@@ -392,10 +419,17 @@ function extractComposedVerbTense(rows, label) {
   if (sectionStart < 0) return null;
 
   const nextSection = rows.findIndex(
-    (row, index) => index > sectionStart && /^(pluperfect|future i|future ii)$/i.test(row[0] || "")
+    (row, index) =>
+      index > sectionStart &&
+      /^(pluperfect|future i|future ii)$/i.test(row[0] || "")
   );
-  const sectionRows = rows.slice(sectionStart + 1, nextSection > -1 ? nextSection : rows.length);
-  const indicativeIndex = sectionRows.findIndex(row => row[0]?.toLowerCase() === "indicative");
+  const sectionRows = rows.slice(
+    sectionStart + 1,
+    nextSection > -1 ? nextSection : rows.length
+  );
+  const indicativeIndex = sectionRows.findIndex(
+    row => row[0]?.toLowerCase() === "indicative"
+  );
   if (indicativeIndex < 0) return null;
 
   const first = sectionRows[indicativeIndex] || [];
@@ -420,20 +454,26 @@ function extractLabeledValue(rows, labels) {
 function extractImperative(rows) {
   const row = rows.find(cells => cells[0]?.toLowerCase() === "imperative");
   if (!row) return null;
-  const forms = row.slice(1).filter(Boolean).map(form =>
-    form.replace(/\)\s*(?=[A-Za-zÄÖÜäöüß])/g, ") / ")
-  );
+  const forms = row
+    .slice(1)
+    .filter(Boolean)
+    .map(form => form.replace(/\)\s*(?=[A-Za-zÄÖÜäöüß])/g, ") / "));
   return forms.length ? forms.join(" / ") : null;
 }
 
 function stripPronoun(value, pronoun) {
   if (!value) return null;
-  return cleanCellText(value).replace(new RegExp(`(^| / )${pronoun}\\s+`, "gi"), "$1");
+  return cleanCellText(value).replace(
+    new RegExp(`(^| / )${pronoun}\\s+`, "gi"),
+    "$1"
+  );
 }
 
 function cleanVerbTense(forms) {
   const cleaned = Object.fromEntries(
-    Object.entries(forms).filter(([, value]) => value && value !== "—" && value !== "-")
+    Object.entries(forms).filter(
+      ([, value]) => value && value !== "—" && value !== "-"
+    )
   );
   return Object.keys(cleaned).length > 0 ? cleaned : null;
 }
