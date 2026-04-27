@@ -14,7 +14,7 @@ function stripGermanEnding(word) {
   return null
 }
 import { lookupWord } from '../api/wiktionary'
-import { fetchExamples } from '../api/claudeProxy'
+import { fetchExamples } from '../api/aiRequest'
 import {
   getCachedEntry,
   setCachedEntry,
