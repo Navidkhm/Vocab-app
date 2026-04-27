@@ -13,6 +13,7 @@ const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000
 export async function getCachedEntry(word) {
   const cached = await db.lookupCache.get(word)
   if (!cached) return null
+  if (cached.entry?.examples?.length > 0) return cached.entry
   if (Date.now() - cached.cachedAt > CACHE_TTL_MS) return null
   return cached.entry
 }

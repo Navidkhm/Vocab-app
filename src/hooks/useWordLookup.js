@@ -4,6 +4,8 @@ import { useState, useCallback } from 'react'
 // Used as a fallback when Wiktionary has no standalone entry for the inflected form.
 // Endings are tried longest-first; minimum stem is 3 chars to avoid over-stripping.
 const GERMAN_ENDINGS = ['sten','stem','ster','stes','en','er','em','es','te','st','e','t','s']
+const EXAMPLE_RETRY_DELAY_MS = 24 * 60 * 60 * 1000
+
 function stripGermanEnding(word) {
   const lower = word.toLowerCase()
   for (const ending of GERMAN_ENDINGS) {
@@ -52,8 +54,7 @@ export function useWordLookup() {
       if (cached) {
         setEntry(cached)
         setLoading(false)
-        // Background refresh examples if missing
-        if (!cached.examples?.length) {
+        if (shouldFetchExamples(cached)) {
           refreshExamplesInBackground(cached, level)
         }
         return
@@ -100,7 +101,7 @@ export function useWordLookup() {
       setEntry(wiktionaryEntry)
       setLoading(false)
 
-      // 5. Fetch Claude examples asynchronously
+      // 5. Fetch AI examples asynchronously
       setLoadingExamples(true)
       try {
         const examples = await fetchExamples(
@@ -109,7 +110,12 @@ export function useWordLookup() {
           wiktionaryEntry.definitions,
           level
         )
-        const fullEntry = { ...wiktionaryEntry, examples, source: 'wiktionary' }
+        const fullEntry = {
+          ...wiktionaryEntry,
+          examples,
+          source: 'wiktionary',
+          examplesAttemptedAt: Date.now(),
+        }
         setEntry(fullEntry)
         await setCachedEntry(normalizedWord, fullEntry)
       } finally {
@@ -123,7 +129,7 @@ export function useWordLookup() {
 
   async function refreshExamplesInBackground(existingEntry, level) {
     if (!navigator.onLine) return
-    if (existingEntry.examples?.length > 0) return
+    if (!shouldFetchExamples(existingEntry)) return
     setLoadingExamples(true)
     try {
       const examples = await fetchExamples(
@@ -133,8 +139,11 @@ export function useWordLookup() {
         level
       )
       if (examples.length > 0) {
-        const updated = { ...existingEntry, examples }
+        const updated = { ...existingEntry, examples, examplesAttemptedAt: Date.now() }
         setEntry(prev => prev ? { ...prev, examples } : prev)
+        await setCachedEntry(existingEntry.word, updated)
+      } else {
+        const updated = { ...existingEntry, examplesAttemptedAt: Date.now() }
         await setCachedEntry(existingEntry.word, updated)
       }
     } finally {
@@ -143,4 +152,10 @@ export function useWordLookup() {
   }
 
   return { entry, loading, error, loadingExamples, lookup }
+}
+
+function shouldFetchExamples(entry) {
+  if (entry.examples?.length > 0) return false
+  if (!entry.examplesAttemptedAt) return true
+  return Date.now() - entry.examplesAttemptedAt > EXAMPLE_RETRY_DELAY_MS
 }
