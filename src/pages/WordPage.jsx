@@ -36,7 +36,7 @@ export default function WordPage() {
           </svg>
         </button>
         <div className="flex-1">
-          <SearchBar initialValue={decodedWord} />
+          <SearchBar key={decodedWord} initialValue={decodedWord} />
         </div>
       </div>
 

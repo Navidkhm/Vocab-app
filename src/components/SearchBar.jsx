@@ -28,7 +28,9 @@ export default function SearchBar({ autoFocus = false, initialValue = '' }) {
   const debounceRef = useRef(null)
 
   function navigateTo(word) {
-    const targetPath = `/word/${encodeURIComponent(word.trim())}`
+    const nextValue = word.trim()
+    const targetPath = `/word/${encodeURIComponent(nextValue)}`
+    setValue(nextValue)
     setSuggestions([])
     setShowDropdown(false)
     setActiveIndex(-1)
