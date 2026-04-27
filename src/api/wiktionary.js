@@ -78,7 +78,16 @@ function findGermanSection(content) {
         break;
       }
     }
-    if (inGerman) germanNodes.push(el);
+    if (inGerman) {
+      // Mobile Wiktionary API responses wrap each language section in
+      // <section class="mf-section-*">, so flatten those wrappers before
+      // extracting POS headings like "Noun", "Verb", and "Adjective".
+      if (el.tagName === "SECTION" && el.className.includes("mf-section")) {
+        germanNodes.push(...Array.from(el.children));
+      } else {
+        germanNodes.push(el);
+      }
+    }
   }
 
   return germanNodes.length > 0 ? germanNodes : null;
