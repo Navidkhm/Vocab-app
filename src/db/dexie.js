@@ -90,12 +90,12 @@ export async function searchAllLocalWords(query) {
   const seen = new Set()
   const results = []
   for (const w of [
-    ...saved.map(w => w.word),
-    ...cached.map(w => w.word),
-    ...bundled.map(w => w.word),
+    ...saved.map(w => ({ word: w.word, type: w.entry?.type })),
+    ...cached.map(w => ({ word: w.word, type: w.entry?.type })),
+    ...bundled.map(w => ({ word: w.word, type: w.type })),
   ]) {
-    if (!seen.has(w.toLowerCase())) {
-      seen.add(w.toLowerCase())
+    if (!seen.has(w.word)) {
+      seen.add(w.word)
       results.push(w)
     }
   }

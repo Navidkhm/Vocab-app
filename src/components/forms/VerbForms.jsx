@@ -1,3 +1,5 @@
+import AudioButton from '../AudioButton'
+
 const PERSONS = ['ich', 'du', 'er/sie/es', 'wir', 'ihr', 'sie']
 
 const TENSES = [
@@ -34,7 +36,12 @@ export default function VerbForms({ forms }) {
                       return (
                         <tr key={person} className="border-b border-slate-100 last:border-0">
                           <td className="py-2 px-3 text-slate-500 w-24">{person}</td>
-                          <td className="py-2 px-3 text-slate-900 font-medium">{form}</td>
+                          <td className="py-2 px-3 text-slate-900 font-medium">
+                            <div className="flex items-center justify-between gap-2">
+                              <span>{form}</span>
+                              <AudioButton word={`${person} ${form}`} size="sm" />
+                            </div>
+                          </td>
                         </tr>
                       )
                     })}
@@ -52,13 +59,23 @@ export default function VerbForms({ forms }) {
                 {forms.partizipII && (
                   <tr className="border-b border-slate-100">
                     <td className="py-2.5 px-3 text-slate-500 font-medium w-28">Partizip II</td>
-                    <td className="py-2.5 px-3 text-slate-900 font-medium">{forms.partizipII}</td>
+                    <td className="py-2.5 px-3 text-slate-900 font-medium">
+                      <div className="flex items-center justify-between gap-2">
+                        <span>{forms.partizipII}</span>
+                        <AudioButton word={forms.partizipII} size="sm" />
+                      </div>
+                    </td>
                   </tr>
                 )}
                 {forms.imperativ && (
                   <tr>
                     <td className="py-2.5 px-3 text-slate-500 font-medium">Imperativ</td>
-                    <td className="py-2.5 px-3 text-slate-900">{forms.imperativ}</td>
+                    <td className="py-2.5 px-3 text-slate-900">
+                      <div className="flex items-center justify-between gap-2">
+                        <span>{forms.imperativ}</span>
+                        <AudioButton word={forms.imperativ} size="sm" />
+                      </div>
+                    </td>
                   </tr>
                 )}
               </tbody>

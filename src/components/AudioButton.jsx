@@ -1,9 +1,11 @@
 import { useState } from 'react'
 
-export default function AudioButton({ word }) {
+export default function AudioButton({ word, size = 'default' }) {
   const [speaking, setSpeaking] = useState(false)
 
   if (!('speechSynthesis' in window)) return null
+
+  const compact = size === 'sm'
 
   function speak() {
     window.speechSynthesis.cancel()
@@ -22,7 +24,9 @@ export default function AudioButton({ word }) {
       onClick={speak}
       disabled={speaking}
       aria-label={`Pronounce ${word}`}
-      className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 active:bg-slate-300 transition-colors disabled:opacity-50"
+      className={`flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 active:bg-slate-300 transition-colors disabled:opacity-50 ${
+        compact ? 'w-7 h-7' : 'w-10 h-10'
+      }`}
     >
       <svg
         viewBox="0 0 24 24"
@@ -31,7 +35,7 @@ export default function AudioButton({ word }) {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={`w-5 h-5 text-slate-600 ${speaking ? 'text-blue-500' : ''}`}
+        className={`${compact ? 'w-4 h-4' : 'w-5 h-5'} text-slate-600 ${speaking ? 'text-blue-500' : ''}`}
       >
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
         {speaking ? (
