@@ -5,6 +5,7 @@ import VerbForms from './forms/VerbForms'
 import AdjectiveForms from './forms/AdjectiveForms'
 import ExampleSentences from './ExampleSentences'
 import { useSettings } from '../context/SettingsContext'
+import { Link } from 'react-router-dom'
 
 const TYPE_LABELS = {
   noun: 'Noun',
@@ -18,6 +19,25 @@ const TYPE_LABELS = {
   interjection: 'Interjection',
   numeral: 'Numeral',
   particle: 'Particle',
+}
+
+function DefinitionText({ text }) {
+  const match = text.match(/^(.*\bof\s+)([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß-]*)([.!?]?)$/)
+  if (!match) return text
+
+  const [, before, lemma, punctuation] = match
+  return (
+    <>
+      {before}
+      <Link
+        to={`/word/${encodeURIComponent(lemma)}`}
+        className="font-medium text-blue-600 underline decoration-blue-200 underline-offset-2"
+      >
+        {lemma}
+      </Link>
+      {punctuation}
+    </>
+  )
 }
 
 export default function WordEntry({ entry, loadingExamples }) {
@@ -66,7 +86,7 @@ export default function WordEntry({ entry, loadingExamples }) {
                 {entry.definitions.length > 1 && (
                   <span className="text-slate-400 font-medium shrink-0 w-4">{i + 1}.</span>
                 )}
-                <span>{def.english}</span>
+                <span><DefinitionText text={def.english} /></span>
               </li>
             ))}
           </ol>
