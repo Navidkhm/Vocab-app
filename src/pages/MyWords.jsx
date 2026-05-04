@@ -1,11 +1,29 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSavedWords } from '../hooks/useSavedWords'
+import { getAllFlashcards, addWordCard, deleteWordCard } from '../db/flashcards'
 
 export default function MyWords() {
   const { savedWords, unsave } = useSavedWords()
   const navigate = useNavigate()
   const [confirmDelete, setConfirmDelete] = useState(null)
+  const [deckWords, setDeckWords] = useState(new Set())
+
+  useEffect(() => {
+    getAllFlashcards('word').then(cards => {
+      setDeckWords(new Set(cards.map(c => c.word)))
+    })
+  }, [])
+
+  async function toggleDeck(word) {
+    if (deckWords.has(word)) {
+      await deleteWordCard(word)
+      setDeckWords(prev => { const s = new Set(prev); s.delete(word); return s })
+    } else {
+      await addWordCard(word)
+      setDeckWords(prev => new Set([...prev, word]))
+    }
+  }
 
   const grouped = groupAlphabetically(savedWords)
 
@@ -65,6 +83,22 @@ export default function MyWords() {
                       <span className="text-slate-300 text-xs ml-2 shrink-0">
                         {entry?.type || ''}
                       </span>
+                    </button>
+                    <button
+                      onClick={() => toggleDeck(word)}
+                      title={deckWords.has(word) ? 'Remove from deck' : 'Add to deck'}
+                      className={`px-3 py-3 transition-colors shrink-0 border-l border-slate-100 ${
+                        deckWords.has(word)
+                          ? 'text-violet-500 hover:text-violet-700 hover:bg-violet-50'
+                          : 'text-slate-300 hover:text-slate-500 hover:bg-slate-50'
+                      }`}
+                    >
+                      <svg viewBox="0 0 24 24" fill={deckWords.has(word) ? 'currentColor' : 'none'}
+                        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                        className="w-4 h-4">
+                        <rect x="2" y="6" width="20" height="14" rx="2" />
+                        <path d="M16 2H8a2 2 0 0 0-2 2v2h12V4a2 2 0 0 0-2-2z" />
+                      </svg>
                     </button>
                     <button
                       onClick={() => handleDelete(word)}

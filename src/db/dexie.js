@@ -8,6 +8,13 @@ db.version(1).stores({
   bundledWords: '&word',
 })
 
+db.version(2).stores({
+  savedWords:   '++id, &word, savedAt',
+  lookupCache:  '&word, cachedAt',
+  bundledWords: '&word',
+  flashcards:   '++id, type, word, nextReviewDate',
+})
+
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000
 
 export async function getCachedEntry(word) {

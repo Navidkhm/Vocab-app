@@ -1,5 +1,6 @@
 import AudioButton from './AudioButton'
 import SaveButton from './SaveButton'
+import AddToDeckButton from './AddToDeckButton'
 import NounForms from './forms/NounForms'
 import VerbForms from './forms/VerbForms'
 import AdjectiveForms from './forms/AdjectiveForms'
@@ -55,6 +56,7 @@ export default function WordEntry({ entry, loadingExamples }) {
           <h1 className="text-3xl font-bold text-slate-900 leading-tight">{entry.word}</h1>
           <AudioButton word={entry.word} />
           <SaveButton entry={entry} />
+          <AddToDeckButton entry={entry} />
         </div>
       </div>
 
