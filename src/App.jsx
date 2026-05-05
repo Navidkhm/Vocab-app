@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { SettingsProvider } from './context/SettingsContext'
 import BottomNav from './components/BottomNav'
@@ -26,7 +26,7 @@ function AppInner() {
         <Route path="/flashcards/session" element={<FlashcardSession />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
-      <BottomNav />
+      {useLocation().pathname !== '/flashcards/session' && <BottomNav />}
     </div>
   )
 }

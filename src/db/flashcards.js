@@ -109,6 +109,17 @@ export async function getReviewedToday() {
   return all.filter(c => c.totalReviews > 0 && c.nextReviewDate > now)
 }
 
+export async function getCardsByCategory(category) {
+  const all = await db.flashcards.toArray()
+  return all.filter(card => {
+    if (category === 'new') return card.totalReviews === 0
+    if (category === 'learning') return card.totalReviews > 0 && card.intervalIndex <= 2
+    if (category === 'review') return card.intervalIndex >= 3 && card.intervalIndex < 6
+    if (category === 'mature') return card.intervalIndex >= 6
+    return false
+  })
+}
+
 export async function deleteFlashcard(id) {
   await db.flashcards.delete(id)
 }

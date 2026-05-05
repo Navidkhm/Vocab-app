@@ -51,17 +51,25 @@ function FrontFace({ card, wordEntry, onFlip }) {
   const article = wordEntry?.type === 'noun' ? wordEntry?.forms?.article : null
   const label = article ? `${article} ${card.word}` : card.word
   const displayLabel = card.type === 'word' ? label : card.front
+  const example = card.type === 'word' ? (card.customExample ?? wordEntry?.examples?.[0]) : null
+  const exampleDe = example?.de
 
   return (
     <div
-      className="bg-white rounded-2xl border border-slate-200 shadow-sm min-h-[200px] flex flex-col items-center justify-center p-8 cursor-pointer select-none active:bg-slate-50"
+      className="bg-white rounded-2xl border border-slate-200 shadow-sm min-h-[200px] flex flex-col p-6 cursor-pointer select-none active:bg-slate-50"
       onClick={onFlip}
     >
-      <p className="text-3xl font-bold text-slate-900 text-center leading-tight mb-3">{displayLabel}</p>
-      {card.type === 'word' && wordEntry?.ipa && (
-        <p className="text-slate-400 text-sm font-mono mb-4">{wordEntry.ipa}</p>
+      <div className="flex flex-col items-center justify-center flex-1 mb-4">
+        <p className="text-3xl font-bold text-slate-900 text-center leading-tight mb-2">{displayLabel}</p>
+        {card.type === 'word' && wordEntry?.ipa && (
+          <p className="text-slate-400 text-sm font-mono">{wordEntry.ipa}</p>
+        )}
+      </div>
+      {exampleDe && (
+        <div className="bg-slate-50 rounded-xl p-3.5">
+          <p className="text-slate-900 text-sm font-medium leading-snug">{exampleDe}</p>
+        </div>
       )}
-      <p className="text-slate-300 text-xs mt-2">tap to flip</p>
     </div>
   )
 }
@@ -70,17 +78,15 @@ function BackFace({ card, wordEntry, showMore, onToggleMore, onFlip }) {
   if (card.type === 'custom') {
     return (
       <div
-        className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 cursor-pointer select-none"
+        className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 cursor-pointer select-none"
         onClick={onFlip}
       >
-        <p className="text-lg text-slate-800 leading-relaxed text-center mb-6">{card.back}</p>
-        <p className="text-slate-300 text-xs text-center">tap to flip</p>
+        <p className="text-lg text-slate-800 leading-relaxed text-center">{card.back}</p>
       </div>
     )
   }
 
   const example = card.customExample ?? wordEntry?.examples?.[0]
-  const exampleDe = example?.de
   const exampleEn = example?.en
 
   return (
@@ -88,16 +94,13 @@ function BackFace({ card, wordEntry, showMore, onToggleMore, onFlip }) {
       className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 cursor-pointer select-none"
       onClick={onFlip}
     >
-      {/* Primary: example sentence */}
-      {exampleDe ? (
-        <div className="mb-4">
-          <p className="text-slate-800 text-base leading-relaxed italic">"{exampleDe}"</p>
-          {exampleEn && (
-            <p className="text-slate-500 text-sm mt-1.5 leading-relaxed">"{exampleEn}"</p>
-          )}
+      {/* Primary: English translation */}
+      {exampleEn ? (
+        <div className="bg-slate-50 rounded-xl p-3.5 mb-4">
+          <p className="text-slate-500 text-sm leading-snug">{exampleEn}</p>
         </div>
       ) : (
-        <p className="text-slate-400 text-sm mb-4 italic">No example yet — tap Show more for details</p>
+        <p className="text-slate-400 text-sm mb-4 italic">No translation available</p>
       )}
 
       {/* Show more — isolated from the flip click */}
@@ -142,11 +145,6 @@ function BackFace({ card, wordEntry, showMore, onToggleMore, onFlip }) {
             </div>
           )}
         </div>
-      )}
-
-      {/* Flip hint — only visible when show more is collapsed */}
-      {!showMore && (
-        <p className="text-slate-300 text-xs mt-4">tap to flip</p>
       )}
     </div>
   )
